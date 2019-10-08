@@ -22,6 +22,11 @@ public class WorldManager : MonoBehaviour
     public bool game_over;
     void Awake()
     {
+        char_2_go.Add(' ', free_space);
+        char_2_go.Add('#', barrier);
+        char_2_go.Add('P', player_prefab);
+        char_2_go.Add('D', hostile_prefabs[0]);
+        char_2_go.Add('S', barrier);
         //DontDestroyOnLoad(this.gameObject);
         GameObject s_handler = GameObject.Find("SceneHandler");
         if (!(s_handler is null))
@@ -32,12 +37,12 @@ public class WorldManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        char_2_go.Add(' ', free_space);
-        char_2_go.Add('#', barrier);
-        char_2_go.Add('P', player_prefab);
-        char_2_go.Add('D', hostile_prefabs[0]);
-        char_2_go.Add('S', barrier);
+        extract_objects();
+        game_over = false;
+    }
 
+    private void extract_objects()
+    {
         string level_str = level_txt.text;
         string[] level_rows = level_str.Split(
                 new[] { Environment.NewLine },
@@ -45,25 +50,39 @@ public class WorldManager : MonoBehaviour
                 );
         int height = level_rows.Length;
         int width = level_rows[0].Length;
-        objs = new GameObject[height,width];
+        objs = new GameObject[height, width];
         dynamic_objs = new List<ActionPiece>();
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                objs[y,x] = Instantiate(char_2_go[level_rows[y][x]],
-                    position_from_world(x,y),
-                    Quaternion.identity,this.transform);
-                ActionPiece a = objs[y, x].GetComponent<ActionPiece>();
-                a.assign_world_xy(x, y);
-                if(TypeHelper.has_actions(a.e_type))
+                char key = level_rows[y][x];
+                if(key != ' ')
+                {
+                    // Spawn a free space for the stylistic look
+                    spawn_action_piece_prefab(y, x, char_2_go[' ']);
+                }
+                GameObject prefab = char_2_go[key];
+                //Debug.Log(debug += " is referenced to " + prefab);
+                ActionPiece a = spawn_action_piece_prefab(y, x, prefab);
+                if (TypeHelper.has_actions(a.e_type))
                 {
                     dynamic_objs.Add(a);
                 }
             }
         }
-        game_over = false;
     }
+
+    private ActionPiece spawn_action_piece_prefab(int y, int x, GameObject prefab)
+    {
+        objs[y, x] = Instantiate(prefab,
+            position_from_world(x, y),
+            Quaternion.identity, this.transform);
+        ActionPiece a = objs[y, x].GetComponent<ActionPiece>();
+        a.assign_world_xy(x, y);
+        return a;
+    }
+
     public Vector3 position_from_world(int worldx, int worldy)
     {
         float a = (float)RESOLUTION_WIDTH / 100f;

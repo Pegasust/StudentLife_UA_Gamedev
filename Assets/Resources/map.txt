@@ -19,12 +19,12 @@
 #                                 #      S     S    S    S    S     S   #
 #########  ##############  ##################  ##################  ######
 #                                 #                                S    #
-#    SSSS  SSSS      SSSS  SSSS   #	 SS        SSS	   SSS	   S	#
-#    SSSS  SSSS      SSSS  SSSS        SSSS	SSSSSSSSS	   S	#  
+#    SSSS  SSSS      SSSS  SSSS   #  SS        SSS     SSS   S          #
+#    SSSS  SSSS      SSSS  SSSS        SSSS SSSS      SSSSS  S          #  
 #                                 #      SS                  S     S    #
 #      SSSSSS    SSS   SSSSSS     #               SSSSSS           S    #
 #                                 #  SS      SS              S          #
-#   SSSSSSSSS  SSSSSSSSSS  SSSSSSS#  SS      SSSSSSSSSSSSSSSSS          #                                     
+#   SSSSSSSSS  SSSSSSSSSS  SSSSSSS#  SS      SSSSSSSSSSSSSSSSS          #
 #   S          S                  #  SS      SS       S      S   SSS    #
 #       SS     S   SSS        SS  #                   S      S          #
 #       SS     S              SS  #     S          SS     SSSSS         #
