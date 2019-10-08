@@ -16,7 +16,12 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        current_turn = EntityType.PLAYER;
+        // instantialize turn of the player first.
+        // Assigning current_turn to dynamo
+        // then end its turn will effectively call
+        // player's on_turn()
+        current_turn = EntityType.DYNAMO;
+        end_turn();
     }
     public void end_turn()
     {

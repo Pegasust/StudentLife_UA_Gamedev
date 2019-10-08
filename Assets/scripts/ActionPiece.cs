@@ -12,7 +12,7 @@ public class ActionPiece : MonoBehaviour
     public int world_x, world_y;
     public virtual EntityType e_type { get 
         {
-            return EntityType.STATIC_OBJECT; 
+            return type; 
         } }
     [SerializeField]
     public EntityType type;
@@ -52,23 +52,31 @@ public class ActionPiece : MonoBehaviour
     {
         if (is_my_turn())
         {
-            if(do_action())
+            if(do_action() &&
+                handle_interaction(
+                    world.action_piece_at(
+                        target_world_x, target_world_y))
+                )
             {
                 if(--current_count <= 0)
                 {
                     game_manager.end_turn();
-                }
-                handle_interaction(
-                    world.action_piece_at(
-                        target_world_x, target_world_y));
+                };
             }
             
         }
     }
-    protected virtual void handle_interaction(ActionPiece other)
+    /// <summary>
+    /// Handles interaction with <paramref name="other"/>.
+    /// Returns true if this action_piece should have
+    /// decrement in action count.
+    /// </summary>
+    /// <param name="other"></param>
+    /// <returns>true if current_action_count should be reduced</returns>
+    protected virtual bool handle_interaction(ActionPiece other)
     {
         //Static objs can't move.
-        return;
+        return true;
     }
     private bool is_my_turn()
     {

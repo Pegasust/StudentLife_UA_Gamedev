@@ -11,8 +11,22 @@ public class WorldManager : MonoBehaviour
     public GameObject[] hostile_prefabs;
     public GameObject[] food_prefabs;
     public TextAsset level_txt;
-    public SceneHandler scene_handler;
     public Dictionary<char, GameObject> char_2_go = new Dictionary<char, GameObject>();
+    /// <summary>
+    /// Exception-free implementation of char_2_go[char].
+    /// </summary>
+    /// <param name="char_symbol"></param>
+    /// <param name="go">Returns free_space if char_symbol not found in key.</param>
+    /// <returns></returns>
+    public bool try_get_prefab(in char char_symbol, out GameObject go)
+    {
+        bool r = char_2_go.TryGetValue(char_symbol, out go);
+        if(!r)
+        {
+            go = free_space;
+        }
+        return r;
+    }
 
     public const int RESOLUTION_WIDTH = 64;
     public const int OFFSET = 1;
@@ -28,11 +42,6 @@ public class WorldManager : MonoBehaviour
         char_2_go.Add('D', hostile_prefabs[0]);
         char_2_go.Add('S', barrier);
         //DontDestroyOnLoad(this.gameObject);
-        GameObject s_handler = GameObject.Find("SceneHandler");
-        if (!(s_handler is null))
-        {
-            scene_handler = s_handler.GetComponent<SceneHandler>();
-        }
     }
     // Start is called before the first frame update
     void Start()
@@ -60,9 +69,12 @@ public class WorldManager : MonoBehaviour
                 if(key != ' ')
                 {
                     // Spawn a free space for the stylistic look
-                    spawn_action_piece_prefab(y, x, char_2_go[' ']);
+                    // And do not assign this object to reference anywhere.
+                    spawn_action_piece_prefab(y, x, free_space);
                 }
-                GameObject prefab = char_2_go[key];
+                // C# initializes a declaration to null.
+                GameObject prefab;
+                try_get_prefab(key, out prefab);
                 //Debug.Log(debug += " is referenced to " + prefab);
                 ActionPiece a = spawn_action_piece_prefab(y, x, prefab);
                 if (TypeHelper.has_actions(a.e_type))
@@ -82,7 +94,12 @@ public class WorldManager : MonoBehaviour
         a.assign_world_xy(x, y);
         return a;
     }
-
+    /// <summary>
+    /// A function to return Unity's relative position from world game obj
+    /// </summary>
+    /// <param name="worldx">x component of world position</param>
+    /// <param name="worldy">y component of world position</param>
+    /// <returns></returns>
     public Vector3 position_from_world(int worldx, int worldy)
     {
         float a = (float)RESOLUTION_WIDTH / 100f;
@@ -96,7 +113,10 @@ public class WorldManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(game_over)
+        {
+            destroy();
+        }
     }
     public ActionPiece action_piece_at(int world_x, int world_y)
     {
@@ -107,13 +127,13 @@ public class WorldManager : MonoBehaviour
         //Handle serializations here
         if (game_over)
         {
-            scene_handler.display_lose_scene();
+            SceneHandler.display_lose_scene();
         }
         else;
         {
             // Prolly got to the house.
             //Should proceed to next stage but we don't have any.
-            scene_handler.display_intro_scene();
+            SceneHandler.display_intro_scene();
         }
 
     }

@@ -60,39 +60,48 @@ public class PlayerController : ActionPiece
         }
         return true;
     }
-    protected override void handle_interaction(ActionPiece other)
+    /// <summary>
+    /// Handles interaction with <paramref name="other"/>.
+    /// Returns true if this action_piece should have
+    /// decrement in action count.
+    /// </summary>
+    /// <param name="other"></param>
+    /// <returns>true if current_action_count should be reduced</returns>
+    protected override bool handle_interaction(ActionPiece other)
     {
         Debug.Log(other);
         switch(other.e_type)
         {
             case EntityType.FREE_SPACE:
-                return;
+                // Preserves the target positions
+                return true;
             case EntityType.STATIC_OBJECT:
             case EntityType.BARRIER:
                 //Can't access that tile. Fall back.
                 set_target_position(this.world_x, this.world_y);
-                return;
+                return false;
             case EntityType.WALL:
                 // Might be able to break a wall
                 // Handle it here
                 //Otherwise
                 set_target_position(this.world_x, this.world_y);
-                return;
+                return false;
             case EntityType.DYNAMO:
                 // Game over for now
                 Destroy(this);
                 world.destroy();
-                return;
+                return true;
             case EntityType.SMALL_FOOD:
                 food_mtr.on_collect_food(1);
                 other.destroy();
-                return;
+                return true;
             case EntityType.HOUSE:
-                // Gratz
+                // Gratz, you won the scene
                 world.destroy();
-                return;
+                return true;
                                
         }
+        return false;
     }
     //bool handle_food_interaction()
     //{
