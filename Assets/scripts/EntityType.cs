@@ -23,6 +23,47 @@ public static class TypeHelper
                 return false;
         }
     }
+    /// <summary>
+    /// Returns movement cost that dynamic_obj loses when hitting target
+    /// </summary>
+    /// <param name="dynamic_obj"></param>
+    /// <param name="target"></param>
+    /// <returns>min = 1, max = int.MaxValue</returns>
+    public static int get_movement_cost(in EntityType dynamic_obj, in EntityType target)
+    {
+        switch(target)
+        {
+            case EntityType.FREE_SPACE:
+                return 1;
+            case EntityType.STATIC_OBJECT:
+            case EntityType.BARRIER:
+                return int.MaxValue;
+            case EntityType.WALL:
+                // Player might be able to break walls
+                return int.MaxValue;
+            case EntityType.DYNAMO:
+                return int.MaxValue;
+            case EntityType.PLAYER:
+                return 1;
+            case EntityType.SMALL_FOOD:
+            case EntityType.FOOD_SPEED_UP:
+            case EntityType.FOOD_VOMIT:
+                // Players see them as food,
+                // monsters see them as free_space
+                return 1;
+            case EntityType.HOUSE:
+                if(dynamic_obj == EntityType.PLAYER)
+                {
+                    return 1;
+                }
+                else //Dynamo
+                {
+                    // See it as a barrier.
+                    return int.MaxValue;
+                }
+        }
+        return int.MaxValue;
+    }
 }
 public enum EntityType
 {

@@ -7,7 +7,7 @@ public class PlayerController : ActionPiece
     protected FoodMeter food_mtr;
 
     public new const float normal_velocity = 1.0f;
-    public const float DEADZONE = 0.2f;
+    public const float DEADZONE = 0.1f;
     public override EntityType e_type
     {
         get
@@ -32,15 +32,7 @@ public class PlayerController : ActionPiece
         return false;
     }
     //Also update worldxy, posxy
-    public void update_target_pos(
-        int delta_x,int delta_y)
-    {
-        float a = (float)WorldManager.RESOLUTION_WIDTH / 100f;
-        target_position.x += a * (float)delta_x;
-        target_position.y += a * (float)delta_y;
-        target_world_x += delta_x;
-        target_world_y += delta_y;
-    }
+
     bool handle_movement()
     {
         float vertical = Input.GetAxis("Vertical");
@@ -69,7 +61,6 @@ public class PlayerController : ActionPiece
     /// <returns>true if current_action_count should be reduced</returns>
     protected override bool handle_interaction(ActionPiece other)
     {
-        Debug.Log(other);
         switch(other.e_type)
         {
             case EntityType.FREE_SPACE:
@@ -88,12 +79,16 @@ public class PlayerController : ActionPiece
                 return false;
             case EntityType.DYNAMO:
                 // Game over for now
-                Destroy(this);
+                this.destroy();
                 world.destroy();
                 return true;
             case EntityType.SMALL_FOOD:
                 food_mtr.on_collect_food(1);
                 other.destroy();
+                return true;
+            case EntityType.FOOD_SPEED_UP:
+            case EntityType.FOOD_VOMIT:
+                // TODO: Implement this for big food pickup
                 return true;
             case EntityType.HOUSE:
                 // Gratz, you won the scene
@@ -103,8 +98,4 @@ public class PlayerController : ActionPiece
         }
         return false;
     }
-    //bool handle_food_interaction()
-    //{
-
-    //}
 }

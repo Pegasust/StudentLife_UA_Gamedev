@@ -8,10 +8,13 @@ public class GameManager : MonoBehaviour
     public EntityType current_turn;
 
     public WorldManager world;
+    public int current_turn_obj_count;
+    private int end_turn_called;
     void Awake()
     {
         world = GetComponent<WorldManager>();
-
+        current_turn_obj_count = 0;
+        end_turn_called = -1;
     }
     // Start is called before the first frame update
     void Start()
@@ -25,6 +28,13 @@ public class GameManager : MonoBehaviour
     }
     public void end_turn()
     {
+        if(++end_turn_called != current_turn_obj_count)
+        {
+            return;
+        }
+
+        end_turn_called = 0;
+        current_turn_obj_count = 0;
         current_turn =  current_turn == EntityType.DYNAMO?
             EntityType.PLAYER:EntityType.DYNAMO;
         for(int i = 0; i < world.dynamic_objs.Count; i++)
@@ -33,8 +43,10 @@ public class GameManager : MonoBehaviour
             {
                 // Handles the on-turn event
                 world.dynamic_objs[i].on_turn();
+                current_turn_obj_count++;
             }
         }
+        world.seek_player();
     }
     // Update is called once per frame
     void Update()

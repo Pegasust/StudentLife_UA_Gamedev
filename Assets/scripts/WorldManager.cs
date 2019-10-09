@@ -33,6 +33,9 @@ public class WorldManager : MonoBehaviour
     
     public GameObject[,] objs { get; private set; }
     public List<ActionPiece> dynamic_objs { get; private set; }
+    public PlayerController player;
+    //{ get; private set; }
+
     public bool game_over;
     void Awake()
     {
@@ -41,13 +44,25 @@ public class WorldManager : MonoBehaviour
         char_2_go.Add('P', player_prefab);
         char_2_go.Add('D', hostile_prefabs[0]);
         char_2_go.Add('S', barrier);
+        extract_objects();
+        game_over = false;
         //DontDestroyOnLoad(this.gameObject);
     }
     // Start is called before the first frame update
     void Start()
     {
-        extract_objects();
-        game_over = false;
+    }
+
+    public void seek_player()
+    {
+        //for(int i = 0; i < dynamic_objs.Count; i++)
+        //{
+        //    if(dynamic_objs[i].e_type == EntityType.PLAYER)
+        //    {
+        //        player = (PlayerController)dynamic_objs[i];
+        //        return;
+        //    }
+        //}
     }
 
     private void extract_objects()
@@ -66,10 +81,9 @@ public class WorldManager : MonoBehaviour
             for (int x = 0; x < width; x++)
             {
                 char key = level_rows[y][x];
-                if(key != ' ')
+                if (key != ' ')
                 {
-                    // Spawn a free space for the stylistic look
-                    // And do not assign this object to reference anywhere.
+                    // Spawn a free-space and set as ground
                     spawn_action_piece_prefab(y, x, free_space);
                 }
                 // C# initializes a declaration to null.
@@ -77,9 +91,14 @@ public class WorldManager : MonoBehaviour
                 try_get_prefab(key, out prefab);
                 //Debug.Log(debug += " is referenced to " + prefab);
                 ActionPiece a = spawn_action_piece_prefab(y, x, prefab);
+
                 if (TypeHelper.has_actions(a.e_type))
                 {
                     dynamic_objs.Add(a);
+                }
+                if(a.e_type == EntityType.PLAYER)
+                {
+                    player = (PlayerController)a;
                 }
             }
         }
@@ -120,7 +139,14 @@ public class WorldManager : MonoBehaviour
     }
     public ActionPiece action_piece_at(int world_x, int world_y)
     {
-        return objs[world_x, world_y].GetComponent<ActionPiece>();
+        return objs[world_y, world_x].GetComponent<ActionPiece>();
+    }
+    public void switch_ground(ActionPiece acting)
+    {
+        GameObject temp = objs[acting.world_y, acting.world_x];
+        objs[acting.world_y, acting.world_x] = 
+            objs[acting.target_world_y, acting.target_world_x];
+        objs[acting.target_world_y, acting.target_world_x] = temp;
     }
     public void destroy(bool game_over = true)
     {
@@ -129,7 +155,7 @@ public class WorldManager : MonoBehaviour
         {
             SceneHandler.display_lose_scene();
         }
-        else;
+        else
         {
             // Prolly got to the house.
             //Should proceed to next stage but we don't have any.
