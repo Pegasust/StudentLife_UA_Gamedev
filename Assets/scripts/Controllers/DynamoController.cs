@@ -224,13 +224,15 @@ public class DynamoController : ActionPiece
             Debug.LogError("No path to take.");
             return true; //Skip turn
         }
-        while (!(path_traced_node.previous.previous is null))
+        NavNode correct_node = path_traced_node;
+        while (!(path_traced_node.previous is null))
         {
+            correct_node = path_traced_node;
             path_traced_node = path_traced_node.previous;
         }
         // path_traced_node.previous is null
-        set_target_position(path_traced_node.x,
-            path_traced_node.y);
+        set_target_position(correct_node.x,
+            correct_node.y);
         return true;
     }
     protected override bool handle_interaction(ActionPiece other)
